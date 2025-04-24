@@ -22,6 +22,7 @@ eval_parser.add_argument('--best_SSIM', action='store_true', help='output lol_v2
 
 eval_parser.add_argument('--custome', action='store_true', help='output custome dataset')
 eval_parser.add_argument('--custome_path', type=str, default='./YOLO')
+eval_parser.add_argument('--output_path', type=str, default='./output/')
 eval_parser.add_argument('--unpaired', action='store_true', help='output unpaired dataset')
 eval_parser.add_argument('--DICM', action='store_true', help='output DICM dataset')
 eval_parser.add_argument('--LIME', action='store_true', help='output LIME dataset')
@@ -75,7 +76,15 @@ def eval(model, testing_data_loader, model_path, output_folder,norm_size=True,LO
     elif v2:
         model.trans.gated2 = False
     torch.set_grad_enabled(True)
-    
+
+def find_subfolders(custom_path):
+    image_files = glob.glob(os.path.join(custom_path, "*.jpg")) + glob.glob(os.path.join(custom_path, "*.png"))
+    if image_files:
+        return image_files
+    else:
+        subfolders = [f.path for f in os.scandir(custom_path) if f.is_dir()]
+        return subfolders
+
 if __name__ == '__main__':
     
     cuda = True
@@ -147,12 +156,14 @@ if __name__ == '__main__':
             eval_data = DataLoader(dataset=get_SICE_eval_set("./datasets/VV"), num_workers=num_workers, batch_size=1, shuffle=False)
             output_folder = './output/VV/'
         elif ep.custome:
-            eval_data = DataLoader(dataset=get_SICE_eval_set(ep.custome_path), num_workers=num_workers, batch_size=1, shuffle=False)
-            output_folder = './output/custome/'
-        alpha = ep.alpha
-        norm_size = False
-        weight_path = ep.unpaired_weights
-        
-    eval_net = CIDNet().cuda()
-    eval(eval_net, eval_data, weight_path, output_folder,norm_size=norm_size,LOL=ep.lol,v2=ep.lol_v2_real,unpaired=ep.unpaired,alpha=alpha,gamma=ep.gamma)
+            eval_net = CIDNet().cuda()
+            subfolders = find_subfolders(ep.custome_path)
+            for subfolder in subfolders:
+                eval_data = DataLoader(dataset=get_SICE_eval_set(subfolder), num_workers=num_workers, batch_size=1, shuffle=False)
+                output_folder = ep.output_path + subfolder.split('/')[-1]
+                os.makedirs(output_folder, exist_ok=True)
+                alpha = ep.alpha
+                norm_size = False
+                weight_path = ep.unpaired_weights
+                eval(eval_net, eval_data, weight_path, output_folder,norm_size=norm_size,LOL=ep.lol,v2=ep.lol_v2_real,unpaired=ep.unpaired,alpha=alpha,gamma=ep.gamma)
 
