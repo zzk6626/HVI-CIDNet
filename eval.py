@@ -96,7 +96,7 @@ if __name__ == '__main__':
             os.mkdir('./output')  
     
     norm_size = True
-    num_workers = 1
+    num_workers = 4
     alpha = None
     if ep.lol:
         eval_data = DataLoader(dataset=get_eval_set("./datasets/LOLdataset/eval15/low"), num_workers=num_workers, batch_size=1, shuffle=False)
