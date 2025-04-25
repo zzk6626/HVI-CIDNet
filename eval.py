@@ -161,7 +161,7 @@ if __name__ == '__main__':
             subfolders = find_subfolders(ep.custome_path)
             for subfolder in subfolders:
                 eval_data = DataLoader(dataset=get_SICE_eval_set(subfolder), num_workers=num_workers, batch_size=1, shuffle=False)
-                output_folder = ep.output_path + subfolder.split('/')[-1]
+                output_folder = ep.output_path + '/' + subfolder.split('/')[-1] + '/'
                 os.makedirs(output_folder, exist_ok=True)
                 alpha = ep.alpha
                 norm_size = False
