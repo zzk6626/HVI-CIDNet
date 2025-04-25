@@ -7,6 +7,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from loss.losses import *
 from net.CIDNet import CIDNet
+import glob
 
 eval_parser = argparse.ArgumentParser(description='Eval')
 eval_parser.add_argument('--perc', action='store_true', help='trained with perceptual loss')
